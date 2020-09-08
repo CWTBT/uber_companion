@@ -5,11 +5,10 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Uber Companion',
       theme: ThemeData(
         primarySwatch: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -32,6 +31,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       appBar: AppBar(
@@ -39,40 +39,58 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: <Widget>[
-          buildMainMenuButton(context, UserType.DRIVER),
-          buildMainMenuButton(context, UserType.PASSENGER),
+          _buildButton(screenWidth, UserType.DRIVER),
+          _buildButton(screenWidth, UserType.PASSENGER),
         ]
       ),
     );
   }
 }
 
-Widget buildMainMenuButton(BuildContext context, UserType user) {
-  var screenWidth = MediaQuery.of(context).size.width;
-  return Expanded(
+Widget _buildButton(double screenWidth, UserType user) {
+  return Expanded (
       flex: 2,
-      child: _buildButtonChild(screenWidth, user),
+      child: new GestureDetector(
+          onTap: (){
+            _printUserType(user);
+          },
+          child: new Container(
+              color: _getColorForUserType(user),
+              width: screenWidth,
+              child: Center(
+                child: _getUserTypeText(user),
+              )
+          )
+      )
   );
 }
 
-Widget _buildButtonChild(double screenWidth, UserType user) {
+void _printUserType(UserType user) {
   switch(user) {
     case UserType.DRIVER:
-      return Container(
-        color: Colors.lightGreen[100],
-        width: screenWidth,
-        child: Center(
-          child: Text("I am a DRIVER"),
-        )
-      );
+      print("I am a DRIVER");
+      break;
     case UserType.PASSENGER:
-      return Container(
-          color: Colors.lightGreen[600],
-          width: screenWidth,
-          child: Center(
-              child: Text("I am a PASSENGER"),
-          )
-      );
+      print("I am a PASSENGER");
+      break;
+  }
+}
+
+Widget _getUserTypeText(UserType user) {
+  switch(user) {
+    case UserType.DRIVER:
+      return Text("I am a DRIVER");
+    case UserType.PASSENGER:
+      return Text("I am a PASSENGER");
+  }
+}
+
+Color _getColorForUserType(UserType user) {
+  switch(user) {
+    case UserType.DRIVER:
+      return Colors.lightGreen[100];
+    case UserType.PASSENGER:
+      return Colors.lightGreen[600];
   }
 }
 
