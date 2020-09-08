@@ -39,28 +39,44 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: <Widget>[
-          Expanded(
-            flex: 2,
-            child: Container(
-              color: Colors.lightGreen[100],
-              width: MediaQuery.of(context).size.width,
-              child: Center(
-                child: Text("I am a Driver.")
-              )
-            )
-          ),
-          Expanded(
-            flex: 2,
-            child: Container(
-              color: Colors.lightGreen[600],
-              width: MediaQuery.of(context).size.width,
-              child: Center(
-                child: Text("I am a Rider.")
-              )
-            )
-          )
+          buildMainMenuButton(context, UserType.DRIVER),
+          buildMainMenuButton(context, UserType.PASSENGER),
         ]
       ),
     );
   }
+}
+
+Widget buildMainMenuButton(BuildContext context, UserType user) {
+  var screenWidth = MediaQuery.of(context).size.width;
+  return Expanded(
+      flex: 2,
+      child: _buildButtonChild(screenWidth, user),
+  );
+}
+
+Widget _buildButtonChild(double screenWidth, UserType user) {
+  switch(user) {
+    case UserType.DRIVER:
+      return Container(
+        color: Colors.lightGreen[100],
+        width: screenWidth,
+        child: Center(
+          child: Text("I am a DRIVER"),
+        )
+      );
+    case UserType.PASSENGER:
+      return Container(
+          color: Colors.lightGreen[600],
+          width: screenWidth,
+          child: Center(
+              child: Text("I am a PASSENGER"),
+          )
+      );
+  }
+}
+
+enum UserType{
+  DRIVER,
+  PASSENGER
 }
