@@ -44,6 +44,10 @@ class _MyHomePageState extends State<MyHomePage> {
     switch(_state) {
       case AppState.USER_TYPE_MENU:
         return _buildUserTypeMenu(_screenWidth);
+      case AppState.DRIVER_MENU:
+        return Scaffold();
+      case AppState.PASSENGER_MENU:
+        return Scaffold();
     }
   }
 
