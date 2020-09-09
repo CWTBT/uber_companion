@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -45,9 +46,9 @@ class _MyHomePageState extends State<MyHomePage> {
       case AppState.USER_TYPE_MENU:
         return _buildUserTypeMenu(_screenWidth);
       case AppState.DRIVER_MENU:
-        return Scaffold();
+        return _buildDriverMenu();
       case AppState.PASSENGER_MENU:
-        return Scaffold();
+        return _buildPassengerMenu();
     }
   }
 
@@ -65,12 +66,42 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Widget _buildPassengerMenu() {
+    return Scaffold (
+      appBar: AppBar (
+        title: Text("Passenger Menu"),
+      ),
+      body: Column(
+        children: <Widget>[
+          Center(
+
+          ),
+        ]
+      )
+    );
+  }
+
+  Widget _buildDriverMenu() {
+    return Scaffold (
+        appBar: AppBar (
+          title: Text("Driver Menu"),
+        ),
+        body: Column(
+            children: <Widget>[
+              Center(
+
+              ),
+            ]
+        )
+    );
+  }
+
   Widget _buildButton(double screenWidth, UserType user) {
     return Expanded (
         flex: 2,
         child: new GestureDetector(
             onTap: (){
-              _printUserType(user);
+              _buildOnTapForUserType(user);
             },
             child: new Container(
                 color: _getColorForUserType(user),
@@ -83,13 +114,17 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _printUserType(UserType user) {
+  void _buildOnTapForUserType(UserType user) {
     switch(user) {
       case UserType.DRIVER:
-        print("I am a DRIVER");
+        setState(() {
+          _state = AppState.DRIVER_MENU;
+        });
         break;
       case UserType.PASSENGER:
-        print("I am a PASSENGER");
+        setState(() {
+          _state = AppState.PASSENGER_MENU;
+        });
         break;
     }
   }
