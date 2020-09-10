@@ -73,30 +73,10 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: <Widget>[
-          _buildBluetoothButton(),
+          _buildBluetoothButton(UserType.PASSENGER),
         ]
       )
     );
-  }
-
-  Widget _buildBluetoothButton() {
-    return new GestureDetector(
-      onTap: (){
-        print("Bluetooth Button Pressed!");
-      },
-      child: new Container(
-        height: 50,
-        margin: EdgeInsets.all(10),
-        color: Colors.blue,
-        child: Center (
-            child: Text("When ready, tap to sync with your driver")
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPassengerRequestButtons() {
-
   }
 
   Widget _buildDriverMenu() {
@@ -106,12 +86,36 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: Column(
             children: <Widget>[
-              Center(
-
-              ),
+              _buildBluetoothButton(UserType.DRIVER),
             ]
         )
     );
+  }
+
+  Widget _buildBluetoothButton(UserType type) {
+    return new GestureDetector(
+      onTap: (){
+        print("Bluetooth Button Pressed!");
+      },
+      child: new Container(
+        height: 50,
+        margin: EdgeInsets.all(10),
+        color: Colors.blue,
+        child: Center (
+            child: _getBluetoothTextFor(type),
+        ),
+      ),
+    );
+  }
+
+  // ignore: missing_return
+  Text _getBluetoothTextFor(UserType type) {
+    switch(type) {
+      case UserType.DRIVER:
+        return Text("Sync with Passenger");
+      case UserType.PASSENGER:
+        return Text("Sync with Driver");
+    }
   }
 
   Widget _buildButton(double screenWidth, UserType user) {
