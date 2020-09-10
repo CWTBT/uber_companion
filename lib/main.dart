@@ -73,12 +73,30 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: <Widget>[
-          Center(
-
-          ),
+          _buildBluetoothButton(),
         ]
       )
     );
+  }
+
+  Widget _buildBluetoothButton() {
+    return new GestureDetector(
+      onTap: (){
+        print("Bluetooth Button Pressed!");
+      },
+      child: new Container(
+        height: 50,
+        margin: EdgeInsets.all(10),
+        color: Colors.blue,
+        child: Center (
+            child: Text("When ready, tap to sync with your driver")
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPassengerRequestButtons() {
+
   }
 
   Widget _buildDriverMenu() {
