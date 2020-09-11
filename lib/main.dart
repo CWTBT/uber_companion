@@ -74,8 +74,33 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: <Widget>[
           _buildBluetoothButton(UserType.PASSENGER),
+          _buildPassengerRequestList(),
         ]
       )
+    );
+  }
+
+  Widget _buildPassengerRequestList() {
+    return Column(
+      children: <Widget>[
+        _buildMusicChangeRequestButton(),
+      ]
+    );
+  }
+
+  Widget _buildMusicChangeRequestButton() {
+    return new Container (
+        height: 100,
+        margin: EdgeInsets.all(10),
+        color: Colors.lightGreen[300],
+        child: new FlatButton (
+            onPressed: (){
+              print("Music Change");
+            },
+            child: Center (
+                child: Text("Request Music Change")
+            )
+        )
     );
   }
 
@@ -93,18 +118,18 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildBluetoothButton(UserType type) {
-    return new GestureDetector(
-      onTap: (){
-        print("Bluetooth Button Pressed!");
-      },
-      child: new Container(
+    return new Container (
         height: 50,
         margin: EdgeInsets.all(10),
         color: Colors.blue,
-        child: Center (
-            child: _getBluetoothTextFor(type),
-        ),
-      ),
+        child: new FlatButton (
+            onPressed: (){
+              print("Bluetooth Button Pressed");
+            },
+            child: Center (
+                child: _getBluetoothTextFor(type)
+            )
+        )
     );
   }
 
