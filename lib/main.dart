@@ -52,6 +52,15 @@ class _MyHomePageState extends State<MyHomePage> {
     widget.flutterBlue.startScan();
   }
 
+  _addDeviceTolist(final BluetoothDevice device) {
+    print("Called addDeviceTolist");
+    if (!widget.devicesList.contains(device)) {
+      setState(() {
+        widget.devicesList.add(device);
+      });
+    }
+  }
+
   void dispose() {
     super.dispose();
   }
@@ -71,13 +80,22 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  _addDeviceTolist(final BluetoothDevice device) {
-    print("Called addDeviceTolist");
-    if (!widget.devicesList.contains(device)) {
-      setState(() {
-        widget.devicesList.add(device);
-      });
-    }
+  Widget _buildButton({
+    String text,
+    Function onPressedLogic,
+    Color buttonColor = Colors.lightGreen,
+    double height = 50}) {
+      return new Container (
+          height: height,
+          margin: EdgeInsets.all(10),
+          color: buttonColor,
+          child: new FlatButton (
+              onPressed: onPressedLogic,
+              child: Center (
+                  child: Text(text),
+              )
+          )
+      );
   }
 
   Widget _buildUserTypeMenu(double screenWidth) {
@@ -87,8 +105,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
           children: <Widget>[
-            _buildButton(screenWidth, UserType.DRIVER),
-            _buildButton(screenWidth, UserType.PASSENGER),
+            _buildUserTypeButtons(screenWidth, UserType.DRIVER),
+            _buildUserTypeButtons(screenWidth, UserType.PASSENGER),
           ]
       ),
     );
@@ -101,35 +119,42 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: <Widget>[
-          _buildBluetoothButton(UserType.PASSENGER),
+          _buildButton(
+            text:"Sync to Driver",
+            onPressedLogic: _bluetoothOnPressed,
+            buttonColor: Colors.blue,
+            height: 50
+          ),
           _buildPassengerRequestList(),
         ]
       )
     );
   }
 
+  void _bluetoothOnPressed() {
+    print("Bluetooth Button Pressed");
+    print("Devices: " + widget.devicesList.toString());
+    //https://blog.kuzzle.io/communicate-through-ble-using-flutter
+    setState(() {
+      _state = AppState.DEVICE_LIST;
+    });
+  }
+
   Widget _buildPassengerRequestList() {
     return Column(
       children: <Widget>[
-        _buildMusicChangeRequestButton(),
+        _buildButton(
+          text: "Request Music Change",
+          onPressedLogic: musicRequestOnPressed,
+          buttonColor: Colors.lightGreen[300],
+          height: 100
+        ),
       ]
     );
   }
 
-  Widget _buildMusicChangeRequestButton() {
-    return new Container (
-        height: 100,
-        margin: EdgeInsets.all(10),
-        color: Colors.lightGreen[300],
-        child: new FlatButton (
-            onPressed: (){
-              print("Music Change");
-            },
-            child: Center (
-                child: Text("Request Music Change")
-            )
-        )
-    );
+  void musicRequestOnPressed() {
+    print("Music Change");
   }
 
   Widget _buildDriverMenu() {
@@ -139,7 +164,12 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: Column(
             children: <Widget>[
-              _buildBluetoothButton(UserType.DRIVER),
+              _buildButton(
+                  text:"Sync to Passenger",
+                  onPressedLogic: _bluetoothOnPressed,
+                  buttonColor: Colors.blue,
+                  height: 50
+              ),
             ]
         )
     );
@@ -185,38 +215,9 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildBluetoothButton(UserType type) {
-    return new Container (
-        height: 50,
-        margin: EdgeInsets.all(10),
-        color: Colors.blue,
-        child: new FlatButton (
-            onPressed: (){
-              print("Bluetooth Button Pressed");
-              print("Devices: " + widget.devicesList.toString());
-              //https://blog.kuzzle.io/communicate-through-ble-using-flutter
-              setState(() {
-                _state = AppState.DEVICE_LIST;
-              });
-            },
-            child: Center (
-                child: _getBluetoothTextFor(type)
-            )
-        )
-    );
-  }
-
   // ignore: missing_return
-  Text _getBluetoothTextFor(UserType type) {
-    switch(type) {
-      case UserType.DRIVER:
-        return Text("Sync with Passenger");
-      case UserType.PASSENGER:
-        return Text("Sync with Driver");
-    }
-  }
 
-  Widget _buildButton(double screenWidth, UserType user) {
+  Widget _buildUserTypeButtons(double screenWidth, UserType user) {
     return Expanded (
         flex: 2,
         child: new GestureDetector(
