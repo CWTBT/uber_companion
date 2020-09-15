@@ -26,6 +26,7 @@ class MyHomePage extends StatefulWidget {
   final String title;
   final FlutterBlue flutterBlue = FlutterBlue.instance;
   final List<BluetoothDevice> devicesList = new List<BluetoothDevice>();
+  final Map<Guid, List<int>> readValues = new Map<Guid, List<int>>();
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -33,6 +34,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   AppState _state = AppState.USER_TYPE_MENU;
+  List<BluetoothService> _services = new List<BluetoothService>();
 
   @override
   void initState() {
@@ -77,6 +79,8 @@ class _MyHomePageState extends State<MyHomePage> {
         return _buildPassengerMenu();
       case AppState.DEVICE_LIST:
         return _buildDeviceListMenu();
+      case AppState.SERVICES_LIST:
+        return _buildServicesListMenu();
     }
   }
 
@@ -193,13 +197,16 @@ class _MyHomePageState extends State<MyHomePage> {
           height: 50,
           child: Row (
             children: <Widget>[
-              Text(device.id.toString()),
+              Text(device.name == '' ? '(unknown device)': device.name),
               FlatButton(
                 color: Colors.blue,
                 child: Text("Connect"),
                 onPressed: () {
-                  print("Connect button pressed!");
-                }
+                  _connectToDevice(device);
+                  setState(() {
+                    _state = AppState.SERVICES_LIST;
+                  });
+                },
               )
             ],
           ),
@@ -215,7 +222,50 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  // ignore: missing_return
+  void _connectToDevice(BluetoothDevice device) async{
+    await device.connect();
+    widget.flutterBlue.stopScan();
+    _services = await device.discoverServices();
+  }
+
+  Widget _buildServicesListMenu() {
+    return Scaffold (
+      appBar: AppBar(
+        title: Text("Services Found"),
+      ),
+      body: _buildServicesList(),
+    );
+  }
+
+  // https://blog.kuzzle.io/communicate-through-ble-using-flutter
+  Widget _buildServicesList() {
+    List<Container> containers = new List<Container>();
+    for (BluetoothService service in _services) {
+      containers.add(
+        Container(
+          height: 50,
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Column (
+                  children: <Widget>[
+                    Text(service.uuid.toString()),
+                  ]
+                )
+              )
+            ]
+          )
+        )
+      );
+    }
+
+    return ListView(
+        padding: EdgeInsets.all(8),
+        children: <Widget> [
+          ...containers,
+        ]
+    );
+  }
 
   Widget _buildUserTypeButtons(double screenWidth, UserType user) {
     return Expanded (
@@ -278,5 +328,6 @@ enum AppState{
   USER_TYPE_MENU,
   DRIVER_MENU,
   PASSENGER_MENU,
-  DEVICE_LIST
+  DEVICE_LIST,
+  SERVICES_LIST
 }
