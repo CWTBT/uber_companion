@@ -25,6 +25,7 @@ class MyHomePage extends StatefulWidget {
 
   final String title;
   final FlutterBlue flutterBlue = FlutterBlue.instance;
+  final List<BluetoothDevice> devicesList = new List<BluetoothDevice>();
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -33,8 +34,22 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   AppState _state = AppState.USER_TYPE_MENU;
 
+  @override
   void initState() {
     super.initState();
+    widget.flutterBlue.connectedDevices
+        .asStream()
+        .listen((List<BluetoothDevice> devices) {
+      for (BluetoothDevice device in devices) {
+        _addDeviceTolist(device);
+      }
+    });
+    widget.flutterBlue.scanResults.listen((List<ScanResult> results) {
+      for (ScanResult result in results) {
+        _addDeviceTolist(result.device);
+      }
+    });
+    widget.flutterBlue.startScan();
   }
 
   void dispose() {
@@ -51,6 +66,17 @@ class _MyHomePageState extends State<MyHomePage> {
         return _buildDriverMenu();
       case AppState.PASSENGER_MENU:
         return _buildPassengerMenu();
+      case AppState.DEVICE_LIST:
+        return _buildDeviceListMenu();
+    }
+  }
+
+  _addDeviceTolist(final BluetoothDevice device) {
+    print("Called addDeviceTolist");
+    if (!widget.devicesList.contains(device)) {
+      setState(() {
+        widget.devicesList.add(device);
+      });
     }
   }
 
@@ -119,6 +145,46 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Widget _buildDeviceListMenu() {
+    return Scaffold (
+      appBar: AppBar(
+        title: Text("Devices Found"),
+      ),
+      body: _buildDeviceList(),
+    );
+  }
+
+  // https://blog.kuzzle.io/communicate-through-ble-using-flutter
+  Widget _buildDeviceList() {
+    List<Container> containers = new List<Container>();
+    for (BluetoothDevice device in widget.devicesList) {
+      containers.add(
+        Container(
+          height: 50,
+          child: Row (
+            children: <Widget>[
+              Text(device.id.toString()),
+              FlatButton(
+                color: Colors.blue,
+                child: Text("Connect"),
+                onPressed: () {
+                  print("Connect button pressed!");
+                }
+              )
+            ],
+          ),
+        ),
+      );
+    }
+
+    return ListView(
+      padding: EdgeInsets.all(10),
+      children: <Widget> [
+        ...containers,
+      ]
+    );
+  }
+
   Widget _buildBluetoothButton(UserType type) {
     return new Container (
         height: 50,
@@ -127,6 +193,11 @@ class _MyHomePageState extends State<MyHomePage> {
         child: new FlatButton (
             onPressed: (){
               print("Bluetooth Button Pressed");
+              print("Devices: " + widget.devicesList.toString());
+              //https://blog.kuzzle.io/communicate-through-ble-using-flutter
+              setState(() {
+                _state = AppState.DEVICE_LIST;
+              });
             },
             child: Center (
                 child: _getBluetoothTextFor(type)
@@ -205,5 +276,6 @@ enum UserType{
 enum AppState{
   USER_TYPE_MENU,
   DRIVER_MENU,
-  PASSENGER_MENU
+  PASSENGER_MENU,
+  DEVICE_LIST
 }
