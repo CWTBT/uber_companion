@@ -26,15 +26,13 @@ class MyHomePage extends StatefulWidget {
   final String title;
   final FlutterBlue flutterBlue = FlutterBlue.instance;
   final List<BluetoothDevice> devicesList = new List<BluetoothDevice>();
-  final Map<Guid, List<int>> readValues = new Map<Guid, List<int>>();
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  AppState _state = AppState.USER_TYPE_MENU;
-  List<BluetoothService> _services = new List<BluetoothService>();
+  AppState _state = AppState.STARTUP;
 
   @override
   void initState() {
@@ -71,79 +69,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     double _screenWidth = MediaQuery.of(context).size.width;
     switch(_state) {
-      case AppState.USER_TYPE_MENU:
-        return _buildUserTypeMenu(_screenWidth);
-      case AppState.DRIVER_MENU:
-        return _buildDriverMenu();
-      case AppState.PASSENGER_MENU:
-        return _buildPassengerMenu();
-      case AppState.DEVICE_LIST:
+      case AppState.STARTUP:
         return _buildDeviceListMenu();
-      case AppState.SERVICES_LIST:
-        return _buildServicesListMenu();
+      case AppState.CONNECTED:
+        return _buildUserTypeMenu(_screenWidth);
     }
-  }
-
-
-
-  Widget _buildUserTypeMenu(double screenWidth) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Column(
-          children: <Widget>[
-            _buildUserTypeButtons(screenWidth, UserType.DRIVER),
-            _buildUserTypeButtons(screenWidth, UserType.PASSENGER),
-          ]
-      ),
-    );
-  }
-
-  Widget _buildPassengerMenu() {
-    return Scaffold (
-      appBar: AppBar (
-        title: Text("Passenger Menu"),
-      ),
-      body: Column(
-        children: <Widget>[
-          _buildButton(
-            text:"Sync to Driver",
-            onPressedLogic: _bluetoothOnPressed,
-            buttonColor: Colors.blue,
-            height: 50
-          ),
-          //_buildPassengerRequestList(),
-        ]
-      )
-    );
-  }
-
-  void _bluetoothOnPressed() {
-    print("Bluetooth Button Pressed");
-    print("Devices: " + widget.devicesList.toString());
-    //https://blog.kuzzle.io/communicate-through-ble-using-flutter
-    setState(() {
-      _state = AppState.DEVICE_LIST;
-    });
-  }
-
-  Widget _buildDriverMenu() {
-    return Scaffold (
-        appBar: AppBar (
-          title: Text("Driver Menu"),
-        ),
-        body: Column(
-            children: <Widget>[
-              _buildButton(
-                  text:"Sync to Passenger",
-                  onPressedLogic: _bluetoothOnPressed,
-                  buttonColor: Colors.blue,
-                  height: 50
-              ),
-            ]
-        )
-    );
   }
 
   Widget _buildDeviceListMenu() {
@@ -166,12 +96,12 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[
               Text(device.name == '' ? '(unknown device)': device.name),
               FlatButton(
-                color: Colors.blue,
+                color: Colors.lightGreen[300],
                 child: Text("Connect"),
                 onPressed: () {
                   _connectToDevice(device);
                   setState(() {
-                    _state = AppState.SERVICES_LIST;
+                    _state = AppState.CONNECTED;
                   });
                 },
               )
@@ -182,55 +112,29 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     return ListView(
-      padding: EdgeInsets.all(10),
-      children: <Widget> [
-        ...containers,
-      ]
+        padding: EdgeInsets.all(10),
+        children: <Widget> [
+          ...containers,
+        ]
     );
   }
 
   void _connectToDevice(BluetoothDevice device) async{
     await device.connect();
     widget.flutterBlue.stopScan();
-    _services = await device.discoverServices();
   }
 
-  Widget _buildServicesListMenu() {
-    return Scaffold (
+  Widget _buildUserTypeMenu(double screenWidth) {
+    return Scaffold(
       appBar: AppBar(
-        title: Text("Services Found"),
+        title: Text(widget.title),
       ),
-      body: _buildServicesList(),
-    );
-  }
-
-  // https://blog.kuzzle.io/communicate-through-ble-using-flutter
-  Widget _buildServicesList() {
-    List<Container> containers = new List<Container>();
-    for (BluetoothService service in _services) {
-      containers.add(
-        Container(
-          height: 50,
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: Column (
-                  children: <Widget>[
-                    Text(service.uuid.toString()),
-                  ]
-                )
-              )
-            ]
-          )
-        )
-      );
-    }
-
-    return ListView(
-        padding: EdgeInsets.all(8),
-        children: <Widget> [
-          ...containers,
-        ]
+      body: Column(
+          children: <Widget>[
+            _buildUserTypeButtons(screenWidth, UserType.DRIVER),
+            _buildUserTypeButtons(screenWidth, UserType.PASSENGER),
+          ]
+      ),
     );
   }
 
@@ -255,18 +159,16 @@ class _MyHomePageState extends State<MyHomePage> {
   void _buildOnTapForUserType(UserType user) {
     switch(user) {
       case UserType.DRIVER:
-        setState(() {
-          Navigator.push(
+        Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => PassengerMenu())
-          );
-          //_state = AppState.DRIVER_MENU;
-        });
+            MaterialPageRoute(builder: (context) => DriverMenu())
+        );
         break;
       case UserType.PASSENGER:
-        setState(() {
-          _state = AppState.PASSENGER_MENU;
-        });
+        Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PassengerMenu())
+        );
         break;
     }
   }
@@ -330,6 +232,29 @@ class PassengerMenu extends StatelessWidget {
   }
 }
 
+class DriverMenu extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      child: Scaffold (
+          appBar: AppBar (
+            title: Text("Driver Menu"),
+          ),
+          body: Column(
+              children: <Widget>[
+
+              ]
+          )
+      ),
+
+      onWillPop: () async {
+        Navigator.pop(context);
+        return false;
+      },
+    );
+  }
+}
+
 Widget _buildButton({
   String text,
   Function onPressedLogic,
@@ -354,9 +279,6 @@ enum UserType{
 }
 
 enum AppState{
-  USER_TYPE_MENU,
-  DRIVER_MENU,
-  PASSENGER_MENU,
-  DEVICE_LIST,
-  SERVICES_LIST
+  STARTUP,
+  CONNECTED
 }
