@@ -84,23 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Widget _buildButton({
-    String text,
-    Function onPressedLogic,
-    Color buttonColor = Colors.lightGreen,
-    double height = 50}) {
-      return new Container (
-          height: height,
-          margin: EdgeInsets.all(10),
-          color: buttonColor,
-          child: new FlatButton (
-              onPressed: onPressedLogic,
-              child: Center (
-                  child: Text(text),
-              )
-          )
-      );
-  }
+
 
   Widget _buildUserTypeMenu(double screenWidth) {
     return Scaffold(
@@ -129,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
             buttonColor: Colors.blue,
             height: 50
           ),
-          _buildPassengerRequestList(),
+          //_buildPassengerRequestList(),
         ]
       )
     );
@@ -142,23 +126,6 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _state = AppState.DEVICE_LIST;
     });
-  }
-
-  Widget _buildPassengerRequestList() {
-    return Column(
-      children: <Widget>[
-        _buildButton(
-          text: "Request Music Change",
-          onPressedLogic: musicRequestOnPressed,
-          buttonColor: Colors.lightGreen[300],
-          height: 100
-        ),
-      ]
-    );
-  }
-
-  void musicRequestOnPressed() {
-    print("Music Change");
   }
 
   Widget _buildDriverMenu() {
@@ -289,7 +256,11 @@ class _MyHomePageState extends State<MyHomePage> {
     switch(user) {
       case UserType.DRIVER:
         setState(() {
-          _state = AppState.DRIVER_MENU;
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PassengerMenu())
+          );
+          //_state = AppState.DRIVER_MENU;
         });
         break;
       case UserType.PASSENGER:
@@ -317,6 +288,64 @@ class _MyHomePageState extends State<MyHomePage> {
         return Colors.lightGreen[600];
     }
   }
+}
+
+//https://stackoverflow.com/questions/54792376/flutter-add-result-to-navigator-when-system-back-button-is-pressed
+class PassengerMenu extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      child: Scaffold (
+        appBar: AppBar (
+          title: Text("Passenger Menu"),
+        ),
+        body: Column(
+            children: <Widget>[
+              _buildPassengerRequestList(),
+            ]
+        )
+      ),
+
+      onWillPop: () async {
+        Navigator.pop(context);
+        return false;
+      },
+    );
+  }
+  Widget _buildPassengerRequestList() {
+    return Column(
+        children: <Widget>[
+          _buildButton(
+              text: "Request Music Change",
+              onPressedLogic: musicRequestOnPressed,
+              buttonColor: Colors.lightGreen[300],
+              height: 100
+          ),
+        ]
+    );
+  }
+
+  void musicRequestOnPressed() {
+    print("Music Change");
+  }
+}
+
+Widget _buildButton({
+  String text,
+  Function onPressedLogic,
+  Color buttonColor = Colors.lightGreen,
+  double height = 50}) {
+  return new Container (
+      height: height,
+      margin: EdgeInsets.all(10),
+      color: buttonColor,
+      child: new FlatButton (
+          onPressed: onPressedLogic,
+          child: Center (
+            child: Text(text),
+          )
+      )
+  );
 }
 
 enum UserType{
