@@ -223,6 +223,25 @@ class PassengerMenu extends StatelessWidget {
               buttonColor: Colors.lightGreen[300],
               height: 100
           ),
+          _buildButton(
+              text: "Request Temperature Change",
+              onPressedLogic: tempRequestOnPressed,
+              buttonColor: Colors.lightGreen[300],
+              height: 100
+          ),
+          _buildButton(
+              text: "Request Additional Stop",
+              onPressedLogic: stopRequestOnPressed,
+              buttonColor: Colors.lightGreen[300],
+              height: 100
+          ),
+          _buildButton(
+              text: "Adjust Communication Level",
+              onPressedLogic: commChangeOnPressed,
+              buttonColor: Colors.lightGreen[300],
+              height: 100
+          ),
+
         ]
     );
   }
@@ -230,27 +249,42 @@ class PassengerMenu extends StatelessWidget {
   void musicRequestOnPressed() {
     print("Music Change");
   }
+
+  void tempRequestOnPressed() {
+
+  }
+
+  void stopRequestOnPressed() {
+
+  }
+
+  void commChangeOnPressed() {
+    
+  }
 }
 
 class DriverMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      child: Scaffold (
-          appBar: AppBar (
-            title: Text("Driver Menu"),
-          ),
-          body: Column(
-              children: <Widget>[
-
-              ]
-          )
-      ),
-
+      child: _buildDriverMenu(),
       onWillPop: () async {
         Navigator.pop(context);
         return false;
       },
+    );
+  }
+
+  Widget _buildDriverMenu() {
+    return Scaffold (
+        appBar: AppBar (
+          title: Text("Driver Menu"),
+        ),
+        body: Column(
+            children: <Widget>[
+
+            ]
+        )
     );
   }
 }
