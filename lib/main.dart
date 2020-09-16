@@ -88,6 +88,30 @@ class _MyHomePageState extends State<MyHomePage> {
   // https://blog.kuzzle.io/communicate-through-ble-using-flutter
   Widget _buildDeviceList() {
     List<Container> containers = new List<Container>();
+
+    // Adds a button to skip the connection screen, in case testers
+    // don't have an extra device handy
+    containers.add(
+      Container(
+        height: 50,
+        child: Row (
+          children: <Widget> [
+            Text("SKIP CONNECTION (for testing)"),
+            _buildButton(
+              text: "\"Connect\"",
+              onPressedLogic: () {
+                setState(() {
+                  _state = AppState.CONNECTED;
+                });
+              },
+              buttonColor: Colors.red[200],
+              height: 50
+            )
+          ]
+        )
+      )
+    );
+
     for (BluetoothDevice device in widget.devicesList) {
       containers.add(
         Container(
@@ -216,6 +240,7 @@ class _PassengerMenuState extends State<PassengerMenu> {
 
   Widget _buildDriverViewFromState() {
     Color _color = Colors.white;
+    String _type = "";
 
     switch(_state) {
       case RequestState.NONE:
@@ -223,19 +248,24 @@ class _PassengerMenuState extends State<PassengerMenu> {
         return Scaffold();
       case RequestState.MUSIC:
         _color = Colors.limeAccent;
+        _type = "Music change";
         break;
       case RequestState.TEMP:
         _color = Colors.greenAccent[100];
+        _type = "Temperature change";
         break;
       case RequestState.STOPS:
         _color = Colors.yellowAccent[400];
+        _type = "Extra stops";
         break;
       case RequestState.COMM:
         _color = Colors.teal[300];
+        _type = "Communcation level";
+        break;
     }
 
     return WillPopScope(
-      child: _buildDriverViewBody(context, _color),
+      child: _buildDriverViewBody(context, _color, _type),
       onWillPop: () async {
         Navigator.pop(context);
         return false;
@@ -317,7 +347,7 @@ class _PassengerMenuState extends State<PassengerMenu> {
     });
   }
 
-  Widget _buildDriverViewBody(BuildContext context, Color color) {
+  Widget _buildDriverViewBody(BuildContext context, Color color, String requestType) {
     return Scaffold (
         appBar: AppBar (
           title: Text("Driver Menu"),
@@ -331,15 +361,26 @@ class _PassengerMenuState extends State<PassengerMenu> {
                     ),
                     duration: Duration(seconds: 3),
                     child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _state = RequestState.NONE;
-                          });
-                        }
+                      //https://stackoverflow.com/questions/52965799/flutter-gesturedetector-not-working-with-containers-in-stack
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () {
+                        setState(() {
+                          _state = RequestState.NONE;
+                        });
+                      },
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text(requestType+" request received."),
+                              Text("Tap to acknowledge request."),
+                            ],
+                          )
+                        )
                     )
                 ),
               )
-            ]
+            ],
         )
     );
   }
