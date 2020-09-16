@@ -161,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case UserType.DRIVER:
         Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => DriverMenu())
+            MaterialPageRoute(builder: (context) => DriverMenu(Colors.white))
         );
         break;
       case UserType.PASSENGER:
@@ -259,15 +259,21 @@ class PassengerMenu extends StatelessWidget {
   }
 
   void commChangeOnPressed() {
-    
+
   }
 }
 
 class DriverMenu extends StatelessWidget {
+  Color _color = Colors.white;
+
+  DriverMenu(Color color) {
+    _color = color;
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      child: _buildDriverMenu(),
+      child: _buildDriverMenu(context, _color),
       onWillPop: () async {
         Navigator.pop(context);
         return false;
@@ -275,14 +281,26 @@ class DriverMenu extends StatelessWidget {
     );
   }
 
-  Widget _buildDriverMenu() {
+  Widget _buildDriverMenu(BuildContext context, Color color) {
     return Scaffold (
         appBar: AppBar (
           title: Text("Driver Menu"),
         ),
         body: Column(
             children: <Widget>[
-
+              Expanded(
+                child: AnimatedContainer(
+                  decoration: BoxDecoration(
+                    color: color,
+                  ),
+                  duration: Duration(seconds: 5),
+                  child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      }
+                  )
+                ),
+              )
             ]
         )
     );
