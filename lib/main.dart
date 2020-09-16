@@ -161,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case UserType.DRIVER:
         Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => DriverMenu(Colors.white))
+            MaterialPageRoute(builder: (context) => DriverMenu())
         );
         break;
       case UserType.PASSENGER:
@@ -193,11 +193,58 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 //https://stackoverflow.com/questions/54792376/flutter-add-result-to-navigator-when-system-back-button-is-pressed
-class PassengerMenu extends StatelessWidget {
+class PassengerMenu extends StatefulWidget {
+  PassengerMenu({Key key, this.title}) : super(key: key);
+  final String title;
+
+  @override
+  _PassengerMenuState createState() => _PassengerMenuState();
+}
+
+class _PassengerMenuState extends State<PassengerMenu> {
+  RequestState _state = RequestState.NONE;
+
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_state == RequestState.NONE) return _buildPassengerMenuBody();
+    else return _buildDriverViewFromState();
+  }
+
+  Widget _buildDriverViewFromState() {
+    Color _color = Colors.white;
+
+    switch(_state) {
+      case RequestState.NONE:
+        print("How did this happen?");
+        return Scaffold();
+      case RequestState.MUSIC:
+        _color = Colors.limeAccent;
+        break;
+      case RequestState.TEMP:
+        _color = Colors.greenAccent[100];
+        break;
+      case RequestState.STOPS:
+        _color = Colors.yellowAccent[400];
+        break;
+      case RequestState.COMM:
+        _color = Colors.teal[300];
+    }
+
     return WillPopScope(
-      child: Scaffold (
+      child: _buildDriverViewBody(context, _color),
+      onWillPop: () async {
+        Navigator.pop(context);
+        return false;
+      },
+    );
+  }
+
+  Widget _buildPassengerMenuBody() {
+    return Scaffold (
         appBar: AppBar (
           title: Text("Passenger Menu"),
         ),
@@ -206,15 +253,11 @@ class PassengerMenu extends StatelessWidget {
               _buildPassengerRequestList(),
             ]
         )
-      ),
-
-      onWillPop: () async {
-        Navigator.pop(context);
-        return false;
-      },
     );
   }
+
   Widget _buildPassengerRequestList() {
+
     return Column(
         children: <Widget>[
           _buildButton(
@@ -247,33 +290,67 @@ class PassengerMenu extends StatelessWidget {
   }
 
   void musicRequestOnPressed() {
-    print("Music Change");
+    print("Music");
+    setState(() {
+      _state = RequestState.MUSIC;
+    });
   }
 
   void tempRequestOnPressed() {
-
+    print("Temp");
+    setState(() {
+      _state = RequestState.TEMP;
+    });
   }
 
   void stopRequestOnPressed() {
-
+    print("Stop");
+    setState(() {
+      _state = RequestState.STOPS;
+    });
   }
 
   void commChangeOnPressed() {
+    print("Communication");
+    setState(() {
+      _state = RequestState.COMM;
+    });
+  }
 
+  Widget _buildDriverViewBody(BuildContext context, Color color) {
+    return Scaffold (
+        appBar: AppBar (
+          title: Text("Driver Menu"),
+        ),
+        body: Column(
+            children: <Widget>[
+              Expanded(
+                child: AnimatedContainer(
+                    decoration: BoxDecoration(
+                      color: color,
+                    ),
+                    duration: Duration(seconds: 3),
+                    child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _state = RequestState.NONE;
+                          });
+                        }
+                    )
+                ),
+              )
+            ]
+        )
+    );
   }
 }
 
 class DriverMenu extends StatelessWidget {
-  Color _color = Colors.white;
-
-  DriverMenu(Color color) {
-    _color = color;
-  }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      child: _buildDriverMenu(context, _color),
+      child: _buildDriverMenu(context),
       onWillPop: () async {
         Navigator.pop(context);
         return false;
@@ -281,7 +358,7 @@ class DriverMenu extends StatelessWidget {
     );
   }
 
-  Widget _buildDriverMenu(BuildContext context, Color color) {
+  Widget _buildDriverMenu(BuildContext context) {
     return Scaffold (
         appBar: AppBar (
           title: Text("Driver Menu"),
@@ -291,9 +368,9 @@ class DriverMenu extends StatelessWidget {
               Expanded(
                 child: AnimatedContainer(
                   decoration: BoxDecoration(
-                    color: color,
+                    color: Colors.white,
                   ),
-                  duration: Duration(seconds: 5),
+                  duration: Duration(seconds: 3),
                   child: GestureDetector(
                       onTap: () {
                         Navigator.pop(context);
@@ -333,4 +410,12 @@ enum UserType{
 enum AppState{
   STARTUP,
   CONNECTED
+}
+
+enum RequestState {
+  NONE,
+  MUSIC,
+  TEMP,
+  STOPS,
+  COMM
 }
